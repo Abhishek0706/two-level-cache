@@ -102,4 +102,45 @@ ability of a two-level cache, for example:}
     on this topic and bring out some revolutionary improvement in this area.
 }
 
+
+\section{Conclusion}
+
+\paragraph{We have studied several aspects of two-leve cache memories in uniprocessors.We have 
+modeled the miss rate, cache area, and cache access time to achieve a solid basis to
+study on-chip memory system tradeoffs.}
+
+\paragraph{An extra level of cache memory can provide a worthwhile 
+performance gain when used with proper combinations
+of small first-level caches and large main memory access times.
+Two-level on-chip cache hierarchies perform even better in low-cost 
+systems without a board-level cache.}
+
+\paragraph{Combining this with set-associative second-level caches 
+improves performance even further. This is because the increase in 
+capacity provided by two-level exclusive caching increases as the 
+second level of caching is made more associative.}
+
+\paragraph{Write-back strategies were studied for both cache levels. 
+The best performance is provided by write-back at both levels
+The principal effect of write-back was the reduction of write 
+bandwidth required at the next higher level of memory.}
+
+\paragraph{If only one of the caches were to use write-back,then write-back
+should be included in the L1 cache because}
+
+\begin{itemize}
+    \item The L1 cache typically has a faster access time, and writes
+    could be processed more quickly without buffering, and
+
+    \item The L1 cache is smaller than the L2 cache.
+
+\end{itemize}
+
+\paragraph{Lastely, multilevel caches provide a fruitful 
+area for study, and much more needs to be done.}
+
+\paragraph{Certainly an important area for further evaluation 
+is multi-level caches in multiprocessors. In this study, we concentrated
+on only 2-level Cache.}
+
 \end{document}
