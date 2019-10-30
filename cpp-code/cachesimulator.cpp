@@ -152,3 +152,120 @@ int l1_hit = 0;
 int l2_miss = 0;
 int l2_hit = 0;
 int cycle = 0;
+
+int main(int argc, char* argv[]){
+
+
+
+    config cacheconfig;
+    ifstream cache_params;
+    string dummyLine;
+
+    cache_params.open("cacheconfig.txt");
+
+        while (!cache_params.eof())  
+        {
+            cache_params >> dummyLine;
+            cache_params >> cacheconfig.L1blocksize;
+            cache_params >> cacheconfig.L1setsize;
+            cache_params >> cacheconfig.L1size;
+            cache_params >> dummyLine;
+            cache_params >> cacheconfig.L2blocksize;
+            cache_params >> cacheconfig.L2setsize;
+            cache_params >> cacheconfig.L2size;
+        }
+
+    
+    if(cacheconfig.L1setsize == 0){
+        cacheconfig.L1setsize = cacheconfig.L1size*1024/cacheconfig.L1blocksize;
+    }
+    if(cacheconfig.L2setsize == 0){
+        cacheconfig.L2setsize = cacheconfig.L2size*1024/cacheconfig.L2blocksize;
+    }
+
+    cache cacheObj(cacheconfig);
+
+
+    vector<vector<unsigned long> > L1_cache = cacheObj.getL1Cache();
+    vector<vector<unsigned long> > L2_cache = cacheObj.getL2Cache();
+
+    vector<vector<unsigned long> > validBit_L1 = cacheObj.getValidL1();
+    vector<vector<unsigned long> > validBit_L2 = cacheObj.getValidL2();
+
+    unsigned long sizeL1Way = L1_cache.size();
+    unsigned long sizeL2Way = L2_cache.size();
+    unsigned long row_L1 = L1_cache[0].size();
+    unsigned long row_L2 = L2_cache[0].size();
+
+    
+
+
+    int L1AcceState = 0;
+    int L2AcceState = 0;
+
+
+        ifstream traces;
+        ofstream tracesout;
+        string outname;
+        outname=string("traceout.txt");  
+
+        traces.open("trace.txt");
+        tracesout.open(outname.c_str());  
+
+        string line;
+        string accesstype;
+        string xaddr;      
+        unsigned int addr;  
+        bitset<32> accessaddr;
+
+        vector<unsigned long> counter_L1, counter_L2;
+        unsigned long temp;
+        counter_L1.resize(row_L1);
+        counter_L2.resize(row_L2);
+        int count=0;
+
+        if (traces.is_open() && tracesout.is_open()) {
+            while (getline(traces, line)) { 
+                count++;
+
+                istringstream iss(line);
+                if (!(iss >> accesstype >> xaddr)) { break; }
+
+                stringstream saddr(xaddr);
+                saddr >> std::hex >> addr;
+
+                accessaddr = bitset<32>(addr);
+
+
+                vector<string> bits = cacheObj.getBits(accessaddr);
+                string strTagL1 = bits[0];
+                string strIndexL1 = bits[1];
+                string strOffsetL1 = bits[2];
+                string strTagL2 = bits[3];
+                string strIndexL2 = bits[4];
+                string strOffsetL2 = bits[5];
+
+                long  index_L1, index_L2;
+                char * ptr;
+                long  tag_L1= strtol(strTagL1.c_str(), & ptr, 2);
+                long  tag_L2= strtol(strTagL2.c_str(), & ptr, 2);
+
+                if(strIndexL1 != ""){
+                    index_L1= strtol(strIndexL1.c_str(), & ptr, 2);
+                }
+                else{
+                    index_L1 = 0;
+                }
+
+                if(strIndexL2 != ""){
+                    index_L2= strtol(strIndexL2.c_str(), & ptr, 2);
+                }
+                else{
+                    index_L2 = 0;
+                }
+
+
+                unsigned long hit_L1=0, hit_L2=0;
+
+    return 0;
+}
