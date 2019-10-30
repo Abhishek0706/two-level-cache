@@ -267,5 +267,151 @@ int main(int argc, char* argv[]){
 
                 unsigned long hit_L1=0, hit_L2=0;
 
+                  for(unsigned long i=0; i<sizeL1Way; i++){
+       
+                    if(L1_cache[i][index_L1] == tag_L1 && validBit_L1[i][index_L1]==1){
+                 
+
+                        hit_L1=1;
+                        break;
+                    }
+                    else{
+                    
+                        hit_L1=0;
+                    }
+                }
+
+                if(hit_L1== 0){
+          
+
+                    for(unsigned long i=0; i<sizeL2Way; i++){
+                   
+                        if(L2_cache[i][index_L2] == tag_L2){
+                       
+
+                            hit_L2=1;
+                            break;
+                        }
+                        else{
+                            
+
+                            hit_L2=0;
+                        }
+                    }
+
+                }
+
+                map<unsigned long, bool> isFull;
+
+                if (accesstype.compare("R") == 0) {
+
+
+                    if(hit_L1==0 && hit_L2 ==0){
+
+                        L1AcceState = RM;
+                        L2AcceState = RM;
+                        l1_miss++;
+                        l2_miss++;
+                        cycle += L1access + L2access + memoryaccess;
+
+
+                        isFull = isWaysFull(L2_cache, sizeL2Way, index_L2);
+                        temp = 0;
+
+                        while(isFull[counter_L2[index_L2]] && temp<sizeL2Way){
+                            counter_L2[index_L2] = (++counter_L2[index_L2])%sizeL2Way;
+                            ++temp;
+                        }
+
+                        loadTag(L2_cache, validBit_L2, sizeL2Way,counter_L2[index_L2], index_L2, tag_L2);
+                        counter_L2[index_L2] = incCounter(sizeL2Way, counter_L2[index_L2]);
+
+
+                        isFull = isWaysFull(L1_cache, sizeL1Way, index_L1);
+                        temp = 0;
+
+                        while(isFull[counter_L1[index_L1]] && temp<sizeL1Way){
+                            counter_L1[index_L1] = (++counter_L1[index_L1])%sizeL1Way;
+                            ++temp;
+                        }
+
+                        loadTag(L1_cache, validBit_L1, sizeL1Way, counter_L1[index_L1], index_L1, tag_L1);
+                        counter_L1[index_L1] = incCounter(sizeL1Way, counter_L1[index_L1]);
+                    }
+                    else if(hit_L1 == 0 && hit_L2 == 1){
+
+                        L1AcceState = RM;
+                        L2AcceState = RH;
+                        l1_miss++;
+                        l2_hit++;
+                        cycle += L1access + L2access;
+
+                        loadTag(L1_cache, validBit_L1, sizeL1Way, counter_L1[index_L1], index_L1, tag_L1);
+                        counter_L1[index_L1] = incCounter(sizeL1Way, counter_L1[index_L1]);
+
+
+                    }
+                    else if(hit_L1 == 1){
+
+                        L1AcceState = RH;
+                        L2AcceState = NA;
+                        l1_hit++;
+                        cycle += L1access;
+
+                    }
+
+                    isFull = isWaysFull(L1_cache, sizeL1Way, index_L1);
+
+                   
+
+                } else {
+                   
+                    if (hit_L1 == 0 && hit_L2 == 0) {
+
+                        L1AcceState = WM;
+                        L2AcceState = WM;
+                        l1_miss++;
+                        l2_miss++;
+                        cycle += L1access + L2access;
+
+                        //
+
+                    } else if (hit_L1 == 0 && hit_L2 == 1) {
+                        L1AcceState = WM;
+                        L2AcceState = WH;
+                        l1_miss++;
+                        l2_hit++;
+                        cycle += L1access;
+
+
+                    } else if (hit_L1 == 1) {
+                        L1AcceState = WH;
+                        L2AcceState = NA;
+                        l1_hit++;
+                        cycle += L1access;
+                      
+                    }
+
+                    
+                }
+
+
+                tracesout << L1AcceState << " " << L2AcceState
+                          << endl;  
+
+
+            }
+            traces.close();
+            tracesout.close();
+        } else cout << "\n Unable to open trace or traceout file ";
+
+
+    float hit_ratio_L1 = float(l1_hit)/float(l1_hit + l1_miss);
+    float hit_ratio_L2 = float(l2_hit)/float(l2_hit + l2_miss);
+
+    cout<<"hit ratio in L1 is "<<hit_ratio_L1<<"\n";
+    cout<<"hit ratio in L2 is "<<hit_ratio_L2<<"\n"; 
+    cout<<cycle<<"\n";
+
     return 0;
 }
